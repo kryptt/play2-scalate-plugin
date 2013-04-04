@@ -2,7 +2,9 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 
 resolvers += Resolver.file("ivy2-local", new File(Path.userHome.absolutePath + "/.ivy2/local"))(Resolver.ivyStylePatterns)
 
-addSbtPlugin("play" % "sbt-plugin" % "2.1.1")
+addSbtPlugin("play" % "sbt-plugin" % "2.1.0")
+
+libraryDependencies += "org.fusesource.scalate" % "scalate-core_2.9" % "1.6.1"
 
 name := "play2-scalate-plugin"
 
