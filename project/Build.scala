@@ -5,9 +5,6 @@ object PluginBuild extends Build {
   import scala.xml._
   import scala.xml.transform._
 
-  resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
-  addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.0.0")
-
   lazy val projVersion = "0.1-SNAPSHOT"
   lazy val projName = "play2-scalate"
   lazy val playVersion = "2.1.0"
