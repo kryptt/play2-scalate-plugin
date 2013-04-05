@@ -1,7 +1,35 @@
 package net.kindleit.scalate
 
-import play.api.Plugin
+import play.api._
+import org.fusesource.scalate._
+import org.fusesource.scalate.util.FileResourceLoader
+import org.fusesource.scalate.layout.DefaultLayoutStrategy
 
-object ScalatePlugin extends Plugin {
+class ScalatePlugin(app: Application) extends Plugin {
+
+  lazy val engine = {
+    val e = new TemplateEngine(null, null)
+    e.resourceLoader = new FileResourceLoader(Some(app.getFile("app/views")))
+    e.workingDirectory = app.getFile("tmp")
+    e.combinedClassPath = true
+    e.classLoader = app.classloader
+
+    app.configuration.getString("scalate.layoutStrategy") foreach { layout =>
+      e.layoutStrategy = new DefaultLayoutStrategy(e, app.getFile(layout).getAbsolutePath)
+    }
+    e
+  }
+
+  override def onStop() = { engine.shutdown() }
+
+}
+
+object ScalatePlugin {
+
+  def engine() =
+    play.Play.application().plugin(classOf[ScalatePlugin]).engine
+
+  def renderContext(requestUri: String): RenderContext =
+    new DefaultRenderContext(requestUri, engine)
 
 }
