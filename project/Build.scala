@@ -5,9 +5,12 @@ object PluginBuild extends Build {
   import scala.xml._
   import scala.xml.transform._
 
-  lazy val projVersion = "0.1-SNAPSHOT"
-  lazy val projName = "play2-scalate"
-  lazy val playVersion = "2.1.0"
+  val projVersion = "0.1-SNAPSHOT"
+  val projName = "play2-scalate"
+  val playVersion = "2.1.0"
+
+  val buildScalaVersion = "2.10.0"
+  val buildScalaVersionForSbt = "2.9.2"
 
   lazy val commonSettings: Seq[Project.Setting[_]] = Defaults.defaultSettings ++ Seq(
     organization := "net.kindleit",
@@ -58,8 +61,8 @@ object PluginBuild extends Build {
   )
 
   lazy val compilerSettings: Seq[Project.Setting[_]] = commonSettings ++ Seq(
-    scalaVersion := "2.9.2",
-    scalaBinaryVersion := "2.9.2",
+    scalaVersion := buildScalaVersionForSbt,
+    scalaBinaryVersion := CrossVersion.binaryScalaVersion(buildScalaVersionForSbt),
     sbtVersion := "0.12",
     sbtPlugin := true,
     name := "play2-scalate-compiler",
@@ -69,8 +72,8 @@ object PluginBuild extends Build {
   )
 
   lazy val pluginSettings: Seq[Project.Setting[_]] = commonSettings ++ Seq(
-    scalaVersion := "2.10.1",
-    scalaBinaryVersion := "2.10",
+    scalaVersion := buildScalaVersion,
+    scalaBinaryVersion := CrossVersion.binaryScalaVersion(buildScalaVersion),
     libraryDependencies += "play" %% "play" % playVersion % "provided",
     libraryDependencies += "org.fusesource.scalate" %% "scalate-core" % "1.6.1",
     name := "play2-scalate-plugin",
@@ -86,11 +89,11 @@ object PluginBuild extends Build {
   }
 
   //SBT Compiler Project used by play to generate the templates during the compile phase.
-  val compiler = Project(id = projName + "-compiler", base = file("compiler"), settings = compilerSettings)
+  lazy val compiler = Project(id = projName + "-compiler", base = file("compiler"), settings = compilerSettings)
 
   //Play Plugin used to keep a TemplateEngine during runtime.
-  val plugin = Project(id = projName + "-plugin", base = file("plugin"), settings = pluginSettings)
+  lazy val plugin = Project(id = projName + "-plugin", base = file("plugin"), settings = pluginSettings)
 
-  val main = Project(id = projName + "-base", base = file(".")) aggregate(compiler, plugin)
+  val main = Project(id = projName + "-base", base = file("."), settings = commonSettings) aggregate(compiler, plugin)
 
 }

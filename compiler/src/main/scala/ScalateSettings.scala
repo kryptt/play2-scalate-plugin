@@ -8,6 +8,7 @@ import net.kindleit.scalate.ScalateCompiler
 object ScalateSettings {
 
   private val basicImports = Seq[String](
+    "net.kindleit.scalate.ScalatePlugin._",
     "play.templates._",
     "play.templates.TemplateMagic._"
   )
@@ -26,11 +27,11 @@ object ScalateSettings {
       }
     }
 
-    (sourceDirectory ** "*.scalate.*").get.collect {
+    (sourceDirectory ** "*.*").get.collect {
       case TemplateType(template, format) => try {
         streams.log.debug("Compiling " + template)
         val imports = (basicImports ++ additionalImports).map("import " + _.replace("%format%", format))
-        new ScalateCompiler(List(template), generatedDir, "views/" + format, imports).execute
+        new ScalateCompiler(List(template), sourceDirectory, generatedDir, "views/" + format, imports).execute
       } catch {
         case e:Throwable => throw new TemplateCompilationError(template, e.getMessage(), 0, 0)
       }

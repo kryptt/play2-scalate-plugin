@@ -4,6 +4,8 @@ import play.api._
 import org.fusesource.scalate._
 import org.fusesource.scalate.util.FileResourceLoader
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
+import java.io.PrintWriter
+import java.io.StringWriter
 
 class ScalatePlugin(app: Application) extends Plugin {
 
@@ -29,7 +31,9 @@ object ScalatePlugin {
   def engine() =
     play.Play.application().plugin(classOf[ScalatePlugin]).engine
 
-  def renderContext(requestUri: String): RenderContext =
-    new DefaultRenderContext(requestUri, engine)
+  def renderContext(requestUri: String) = {
+    val writer = new StringWriter
+    (new DefaultRenderContext(requestUri, engine, new PrintWriter(writer)), writer.getBuffer())
+  }
 
 }
