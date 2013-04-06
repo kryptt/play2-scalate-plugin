@@ -15,7 +15,7 @@ object ScalateSettings {
 
   val ScalateTemplates = (state: State, sourceDirectory: File, generatedDir: File,
       templateInfo: PartialFunction[String, String], additionalImports: Seq[String],
-      streams: TaskStreams) => {
+      streams: TaskStreams) => withSbtClassLoader( _ => {
     import play.templates._
 
     object TemplateType {
@@ -38,7 +38,9 @@ object ScalateSettings {
     }
 
     (generatedDir ** "*.scalate.scala").get.map(_.getAbsoluteFile)
-  }
+  })
+
+  val sbtLoader = this.getClass.getClassLoader
 
   val scalateSettings = Seq[Setting[_]](
     sourceGenerators in Compile <+= (state, sourceDirectory in Compile, sourceManaged in Compile, templateInfo, templatesImport,
@@ -52,4 +54,15 @@ object ScalateSettings {
       case "squery" => "html"
     }
   )
+
+  protected def withSbtClassLoader[A](f: ClassLoader => A): A = {
+    val oldLoader = Thread.currentThread.getContextClassLoader
+    Thread.currentThread.setContextClassLoader(sbtLoader)
+    try {
+      f(sbtLoader)
+    } finally {
+      Thread.currentThread.setContextClassLoader(oldLoader)
+    }
+  }
+
 }
